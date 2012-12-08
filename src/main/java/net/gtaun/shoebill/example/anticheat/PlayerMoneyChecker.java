@@ -34,6 +34,7 @@ class PlayerMoneyChecker
 	public void setCheckEnabled(boolean isCheckEnabled)
 	{
 		this.isCheckEnabled = isCheckEnabled;
+		if (isCheckEnabled) update();
 	}
 	
 	public boolean isSkipProxying()

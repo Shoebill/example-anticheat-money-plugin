@@ -116,6 +116,8 @@ public class AntiCheatMoneyServiceImpl implements AntiCheatMoneyService
 			Player player = (Player) obj;
 			PlayerMoneyChecker checker = playerMoneyCheckers.get(player);
 			
+			if (checker.isCheckEnabled() == false) return helper.invokeLower(obj, args);
+			
 			if (checker.isSkipProxying()) return helper.invokeOriginal(obj, args);
 			checker.setSkipProxying(true);
 			
@@ -141,6 +143,8 @@ public class AntiCheatMoneyServiceImpl implements AntiCheatMoneyService
 		{
 			Player player = (Player) obj;
 			PlayerMoneyChecker checker = playerMoneyCheckers.get(player);
+			
+			if (checker.isCheckEnabled() == false) return helper.invokeLower(obj, args);
 			
 			if (checker.isSkipProxying()) return helper.invokeOriginal(obj, args);
 			checker.setSkipProxying(true);
