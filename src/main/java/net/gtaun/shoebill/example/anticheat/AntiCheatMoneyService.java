@@ -8,14 +8,15 @@ public interface AntiCheatMoneyService extends Service
 	/**
 	 * bla bla
 	 * 
-	 * @param ms
+	 * @param player
 	 */
 	boolean isMoneyCheckEnabled(Player player);
 
 	/**
 	 * bla bla bla
 	 * 
-	 * @param ms
+	 * @param player
+	 * @param enable
 	 */
 	void setMoneyCheckEnabled(Player player, boolean enable);
 
