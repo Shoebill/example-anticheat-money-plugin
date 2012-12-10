@@ -3,14 +3,14 @@ package net.gtaun.shoebill.example.anticheat.event;
 import net.gtaun.shoebill.event.player.PlayerEvent;
 import net.gtaun.shoebill.object.Player;
 
-public class PlayerMoneyCheckEvent extends PlayerEvent
+public class AntiCheatMoneyCheckEvent extends PlayerEvent
 {
 	private final int lastTimeMoney;
 	private final int nowMoney;
 	private boolean isAllow = false;
 	
 	
-	public PlayerMoneyCheckEvent(Player player, int lastTimeMoney, int nowMoney)
+	public AntiCheatMoneyCheckEvent(Player player, int lastTimeMoney, int nowMoney)
 	{
 		super(player);
 		this.lastTimeMoney = lastTimeMoney;

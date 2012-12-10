@@ -1,7 +1,7 @@
 package net.gtaun.shoebill.example.anticheat;
 
-import net.gtaun.shoebill.example.anticheat.event.PlayerMoneyCheatEvent;
-import net.gtaun.shoebill.example.anticheat.event.PlayerMoneyCheckEvent;
+import net.gtaun.shoebill.example.anticheat.event.AntiCheatMoneyCheatEvent;
+import net.gtaun.shoebill.example.anticheat.event.AntiCheatMoneyCheckEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.util.event.EventManager;
 
@@ -79,7 +79,7 @@ class PlayerMoneyChecker
 			}
 			if (nowMoney > money)
 			{
-				PlayerMoneyCheckEvent event = new PlayerMoneyCheckEvent(player, money, nowMoney);
+				AntiCheatMoneyCheckEvent event = new AntiCheatMoneyCheckEvent(player, money, nowMoney);
 				eventManager.dispatchEvent(event, player, service);
 				
 				if (event.isAllow()) update();
@@ -87,7 +87,7 @@ class PlayerMoneyChecker
 				{
 					player.setMoney(money);
 					
-					PlayerMoneyCheatEvent cheatEvent = new PlayerMoneyCheatEvent(player, nowMoney, money);
+					AntiCheatMoneyCheatEvent cheatEvent = new AntiCheatMoneyCheatEvent(player, nowMoney, money);
 					eventManager.dispatchEvent(cheatEvent, player, service);
 				}
 			}

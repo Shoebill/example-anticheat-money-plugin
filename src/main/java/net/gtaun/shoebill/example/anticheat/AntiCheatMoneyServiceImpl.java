@@ -1,8 +1,6 @@
 package net.gtaun.shoebill.example.anticheat;
 
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.WeakHashMap;
 
@@ -21,8 +19,8 @@ import net.gtaun.shoebill.proxy.MethodInterceptor.Helper;
 import net.gtaun.shoebill.proxy.MethodInterceptor.Interceptor;
 import net.gtaun.shoebill.proxy.MethodInterceptor.InterceptorPriority;
 import net.gtaun.util.event.EventManager;
-import net.gtaun.util.event.EventManager.HandlerEntry;
 import net.gtaun.util.event.EventManager.HandlerPriority;
+import net.gtaun.util.event.ManagedEventManager;
 
 public class AntiCheatMoneyServiceImpl implements AntiCheatMoneyService
 {
@@ -36,24 +34,20 @@ public class AntiCheatMoneyServiceImpl implements AntiCheatMoneyService
 	private static final Class<?>[] METHOD_SIGN_GET_MONEY = {};
 	
 	
-	private EventManager eventManager;
+	private ManagedEventManager eventManager;
 	private Map<Player, PlayerMoneyChecker> playerMoneyCheckers;
 	
 	private MethodInterceptor setMoneyMethodInterceptor;
 	private MethodInterceptor giveMoneyMethodInterceptor;
 	private MethodInterceptor getMoneyMethodInterceptor;
 	
-	private Collection<HandlerEntry> eventHandlerEntries;
-	
 	private Timer timer;
 	
 	
-	public AntiCheatMoneyServiceImpl(Shoebill shoebill, EventManager eventManager) throws NoSuchMethodException, SecurityException
+	public AntiCheatMoneyServiceImpl(Shoebill shoebill, EventManager rootEventManager) throws NoSuchMethodException, SecurityException
 	{
+		eventManager = new ManagedEventManager(rootEventManager);
 		playerMoneyCheckers = new WeakHashMap<>();
-		eventHandlerEntries = new LinkedList<>();
-		
-		this.eventManager = eventManager;
 		
 		Method setMoneyMethod = Player.class.getMethod(METHOD_NAME_SET_MONEY, METHOD_SIGN_SET_MONEY);
 		Method giveMoneyMethod = Player.class.getMethod(METHOD_NAME_GIVE_MONEY, METHOD_SIGN_GIVE_MONEY);
@@ -64,14 +58,14 @@ public class AntiCheatMoneyServiceImpl implements AntiCheatMoneyService
 		giveMoneyMethodInterceptor = proxyManager.createMethodInterceptor(giveMoneyMethod, moneyChangeMethodInterceptor, InterceptorPriority.BOTTOM);
 		getMoneyMethodInterceptor = proxyManager.createMethodInterceptor(getMoneyMethod, getMoneyInterceptor, InterceptorPriority.MONITOR);
 		
-		eventHandlerEntries.add(eventManager.addHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.MONITOR));
-		eventHandlerEntries.add(eventManager.addHandler(PlayerDisconnectEvent.class, playerEventHandler, HandlerPriority.BOTTOM));
+		eventManager.registerHandler(PlayerConnectEvent.class, playerEventHandler, HandlerPriority.MONITOR);
+		eventManager.registerHandler(PlayerDisconnectEvent.class, playerEventHandler, HandlerPriority.BOTTOM);
 		
 		SampObjectFactory factory = shoebill.getSampObjectFactory();
 		timer = factory.createTimer(1000);
 		timer.start();
 		
-		eventHandlerEntries.add(eventManager.addHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL));
+		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
 	}
 	
 	public void uninitialize()
@@ -84,10 +78,7 @@ public class AntiCheatMoneyServiceImpl implements AntiCheatMoneyService
 		giveMoneyMethodInterceptor.cancel();
 		getMoneyMethodInterceptor.cancel();
 		
-		for (HandlerEntry entry : eventHandlerEntries)
-		{
-			entry.cancel();
-		}
+		eventManager.cancelAll();
 	}
 	
 	@Override
