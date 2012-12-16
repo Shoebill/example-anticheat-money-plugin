@@ -53,6 +53,8 @@ public class AntiCheatMoneyServiceImpl implements AntiCheatMoneyService
 		Method giveMoneyMethod = Player.class.getMethod(METHOD_NAME_GIVE_MONEY, METHOD_SIGN_GIVE_MONEY);
 		Method getMoneyMethod = Player.class.getMethod(METHOD_NAME_GET_MONEY, METHOD_SIGN_GET_MONEY);
 		
+		for (Player player : shoebill.getSampObjectStore().getPlayers()) createPlayerMoneyChecker(player);
+		
 		GlobalProxyManager proxyManager = shoebill.getGlobalProxyManager();
 		setMoneyMethodInterceptor = proxyManager.createMethodInterceptor(setMoneyMethod, moneyChangeMethodInterceptor, InterceptorPriority.BOTTOM);
 		giveMoneyMethodInterceptor = proxyManager.createMethodInterceptor(giveMoneyMethod, moneyChangeMethodInterceptor, InterceptorPriority.BOTTOM);
@@ -152,12 +154,17 @@ public class AntiCheatMoneyServiceImpl implements AntiCheatMoneyService
 		}
 	};
 	
+	private void createPlayerMoneyChecker(Player player)
+	{
+		playerMoneyCheckers.put(player, new PlayerMoneyChecker(player, AntiCheatMoneyServiceImpl.this, eventManager));
+	}
+	
 	private PlayerEventHandler playerEventHandler = new PlayerEventHandler()
 	{
 		public void onPlayerConnect(PlayerConnectEvent event)
 		{
 			Player player = event.getPlayer();
-			playerMoneyCheckers.put(player, new PlayerMoneyChecker(player, AntiCheatMoneyServiceImpl.this, eventManager));
+			createPlayerMoneyChecker(player);
 		}
 		
 		public void onPlayerDisconnect(PlayerDisconnectEvent event)
