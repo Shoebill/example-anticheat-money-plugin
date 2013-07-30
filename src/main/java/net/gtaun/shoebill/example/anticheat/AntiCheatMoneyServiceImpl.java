@@ -7,12 +7,11 @@ import java.util.WeakHashMap;
 import net.gtaun.shoebill.SampObjectFactory;
 import net.gtaun.shoebill.Shoebill;
 import net.gtaun.shoebill.event.PlayerEventHandler;
-import net.gtaun.shoebill.event.TimerEventHandler;
 import net.gtaun.shoebill.event.player.PlayerConnectEvent;
 import net.gtaun.shoebill.event.player.PlayerDisconnectEvent;
-import net.gtaun.shoebill.event.timer.TimerTickEvent;
 import net.gtaun.shoebill.object.Player;
 import net.gtaun.shoebill.object.Timer;
+import net.gtaun.shoebill.object.Timer.TimerCallback;
 import net.gtaun.shoebill.proxy.GlobalProxyManager;
 import net.gtaun.shoebill.proxy.MethodInterceptor;
 import net.gtaun.shoebill.proxy.MethodInterceptor.Helper;
@@ -64,10 +63,18 @@ public class AntiCheatMoneyServiceImpl implements AntiCheatMoneyService
 		eventManager.registerHandler(PlayerDisconnectEvent.class, playerEventHandler, HandlerPriority.BOTTOM);
 		
 		SampObjectFactory factory = shoebill.getSampObjectFactory();
-		timer = factory.createTimer(1000);
+		timer = factory.createTimer(1000, new TimerCallback()
+		{	
+			@Override
+			public void onTick(int factualInterval)
+			{
+				for (PlayerMoneyChecker checker : playerMoneyCheckers.values())
+				{
+					checker.check();
+				}
+			}
+		});
 		timer.start();
-		
-		eventManager.registerHandler(TimerTickEvent.class, timer, timerEventHandler, HandlerPriority.NORMAL);
 	}
 	
 	public void uninitialize()
@@ -171,17 +178,6 @@ public class AntiCheatMoneyServiceImpl implements AntiCheatMoneyService
 		{
 			Player player = event.getPlayer();
 			playerMoneyCheckers.remove(player);
-		}
-	};
-	
-	private TimerEventHandler timerEventHandler = new TimerEventHandler()
-	{
-		public void onTimerTick(TimerTickEvent event)
-		{
-			for (PlayerMoneyChecker checker : playerMoneyCheckers.values())
-			{
-				checker.check();
-			}
 		}
 	};
 }
